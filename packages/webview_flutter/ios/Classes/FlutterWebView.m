@@ -331,6 +331,22 @@
 
 - (bool)loadUrl:(NSString*)url withHeaders:(NSDictionary<NSString*, NSString*>*)headers {
   NSURL* nsUrl = [NSURL URLWithString:url];
+    #if TARGET_IPHONE_SIMULATOR//模拟器
+    #elif TARGET_OS_IPHONE//真机
+    //iPhone Device
+    if ([url hasPrefix:@"file:///"]) {
+        NSLog(@" loadFile = %@", url);
+        nsUrl = [NSURL fileURLWithPath:url];
+        if (@available(iOS 9.0, *)) {
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+               NSString *basePath = paths.firstObject;
+            NSLog(@" bashPath = %@", basePath);
+            [_webView loadFileURL:nsUrl allowingReadAccessToURL:[NSURL fileURLWithPath:basePath]];
+            _webView.scrollView.scrollEnabled = NO;
+            return true;
+        }
+    }
+    #endif
   if (!nsUrl) {
     return false;
   }
